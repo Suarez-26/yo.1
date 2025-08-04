@@ -1,47 +1,46 @@
-from screencontrollers import limpiar_pantalla
-
-def ingresar_item(campos):
-    """Función genérica para solicitar datos al usuario."""
-    item = {}
-    for campo, tipo, mensaje in campos:
-        while True:
-            try:
-                valor = tipo(input(mensaje))
-                item[campo] = valor
-                break
-            except ValueError:
-                print(f"Error: Entrada inválida. Por favor, ingrese un valor de tipo '{tipo.__name__}'.")
-    return item
+from utils.valideData import guardar_datos
+from config import INGREDIENTES_FILE, CATEGORIAS_FILE, CHEFS_FILE, HAMBURGUESAS_FILE
 
 def inicializar_datos_manualmente():
-    """Función principal para guiar la creación de todos los datos iniciales."""
-    db = { "ingredientes": [], "categorias": [], "chefs": [], "hamburguesas": [] }
+    print("\nInicializando datos...")
 
-    limpiar_pantalla()
-    print("--- ASISTENTE DE CONFIGURACIÓN INICIAL ---")
-    print("No se encontraron archivos de datos. Vamos a crearlos.\n")
+    ingredientes = []
+    categorias = []
+    chefs = []
 
-    # Ingresar Ingredientes
-    print("--- 1. Ingresar Ingredientes ---")
-    campos_ingrediente = [("nombre", str, "Nombre del ingrediente: "), ("descripcion", str, "Descripción: "), ("precio", float, "Precio (ej: 2.5): "), ("stock", int, "Stock inicial (ej: 100): ")]
+    print("\nIngrese ingredientes iniciales:")
     while True:
-        db["ingredientes"].append(ingresar_item(campos_ingrediente))
-        if input("¿Desea agregar otro ingrediente? (s/n): ").lower() != 's': break
+        nombre = input("Nombre del ingrediente (Enter para salir): ")
+        if not nombre:
+            break
+        stock = int(input("Stock: "))
+        ingredientes.append({"nombre": nombre, "stock": stock})
 
-    # Ingresar Categorías
-    print("\n--- 2. Ingresar Categorías ---")
-    campos_categoria = [("nombre", str, "Nombre de la categoría: "), ("descripcion", str, "Descripción: ")]
+    print("\nIngrese categorías:")
     while True:
-        db["categorias"].append(ingresar_item(campos_categoria))
-        if input("¿Desea agregar otra categoría? (s/n): ").lower() != 's': break
+        nombre = input("Nombre de la categoría (Enter para salir): ")
+        if not nombre:
+            break
+        categorias.append({"nombre": nombre})
 
-    # Ingresar Chefs
-    print("\n--- 3. Ingresar Chefs ---")
-    campos_chef = [("nombre", str, "Nombre del Chef: "), ("especialidad", str, "Especialidad: ")]
+    print("\nIngrese chefs:")
     while True:
-        db["chefs"].append(ingresar_item(campos_chef))
-        if input("¿Desea agregar otro chef? (s/n): ").lower() != 's': break
-            
-    print("\n¡Configuración inicial completada!")
-    input("Presione Enter para continuar al menú principal...")
-    return db
+        nombre = input("Nombre del chef (Enter para salir): ")
+        if not nombre:
+            break
+        especialidad = input("Especialidad: ")
+        chefs.append({"nombre": nombre, "especialidad": especialidad})
+
+    hamburguesas = []
+
+    guardar_datos(INGREDIENTES_FILE, ingredientes)
+    guardar_datos(CATEGORIAS_FILE, categorias)
+    guardar_datos(CHEFS_FILE, chefs)
+    guardar_datos(HAMBURGUESAS_FILE, hamburguesas)
+
+    return {
+        "ingredientes": ingredientes,
+        "categorias": categorias,
+        "chefs": chefs,
+        "hamburguesas": hamburguesas
+    }

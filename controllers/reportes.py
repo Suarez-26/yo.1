@@ -1,41 +1,44 @@
-from config import INGREDIENTES_FILE, HAMBURGUESAS_FILE, CHEFS_FILE, CATEGORIAS_FILE
-from utils.valideData import cargar_datos, guardar_datos
 from utils.screencontrollers import limpiar_pantalla, pausar_pantalla
 
-def menu_reportes():
+def menu_reportes(db):
     while True:
         limpiar_pantalla()
-        print("--- Menú de Reportes ---")
-        # Imprime las 20 opciones de reportes aquí...
-        print("1. Ingredientes con stock menor a 400.")
-        print("...")
-        print("21. Volver al Menú Principal")
+        print("--- Reportes ---")
+        print("1. Ingredientes con poco stock (<10)")
+        print("2. Chefs registrados")
+        print("3. Hamburguesas por categoría")
+        print("4. Volver")
 
-        opcion = input("\nSeleccione un reporte o acción: ")
-        
-        # Carga los datos necesarios para los reportes
-        ingredientes = cargar_datos(INGREDIENTES_FILE)
-        hamburguesas = cargar_datos(HAMBURGUESAS_FILE)
-        chefs = cargar_datos(CHEFS_FILE)
-        categorias = cargar_datos(CATEGORIAS_FILE)
-
-        limpiar_pantalla()
-        print("--- Resultado ---")
-
-        # Aquí va la lógica completa de los 20 reportes (el bloque if/elif/else de la respuesta anterior)
-        if opcion == '1':
-            resultado = [ing for ing in ingredientes if ing['stock'] < 400]
-            for ing in resultado: print(f"{ing['nombre']} - Stock: {ing['stock']}")
-        
-        elif opcion == '2':
-            # Lógica del reporte 2
-            pass
-        
-        # ... y así sucesivamente para los 20 reportes ...
-
-        elif opcion == '21':
+        opcion = input("Seleccione una opción: ")
+        if opcion == "1":
+            reporte_stock_bajo(db)
+        elif opcion == "2":
+            reporte_chefs(db)
+        elif opcion == "3":
+            reporte_por_categoria(db)
+        elif opcion == "4":
             break
         else:
-            print("Opción no válida.")
-
+            print("Opción inválida.")
         pausar_pantalla()
+
+def reporte_stock_bajo(db):
+    print("\n--- Ingredientes con Bajo Stock ---")
+    for ing in db["ingredientes"]:
+        if ing["stock"] < 10:
+            print(f"{ing['nombre']} | Stock: {ing['stock']}")
+
+def reporte_chefs(db):
+    print("\n--- Lista de Chefs ---")
+    for chef in db["chefs"]:
+        print(f"{chef['nombre']} | Especialidad: {chef['especialidad']}")
+
+def reporte_por_categoria(db):
+    print("\n--- Hamburguesas por Categoría ---")
+    categorias = {}
+    for hb in db["hamburguesas"]:
+        categorias.setdefault(hb["categoria"], []).append(hb["nombre"])
+    for cat, hbs in categorias.items():
+        print(f"\n{cat}:")
+        for h in hbs:
+            print(f" - {h}")
